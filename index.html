@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SVG Animator</title>
+
+    <style>
+      body {
+        margin: 0;
+        background: #202124;
+        color: white;
+        font-family: Arial;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      input {
+        margin: 20px;
+      }
+
+      #preview {
+        width: 700px;
+        height: 500px;
+        border: 2px dashed #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>SVG Auto Animator</h2>
+
+    <input type="file" id="upload" accept=".svg" />
+
+    <div id="preview">Upload an SVG</div>
+
+    <script>
+      const upload = document.getElementById("upload");
+      const preview = document.getElementById("preview");
+
+      upload.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+
+        if (!file) return;
+
+        const text = await file.text();
+
+        preview.innerHTML = text;
+
+        const svg = preview.querySelector("svg");
+
+        if (!svg) return;
+
+        animateSVG(svg);
+      });
+
+      function animateSVG(svg) {
+        const shapes = svg.querySelectorAll(
+          "path,circle,rect,ellipse,polygon,polyline,line,text",
+        );
+
+        shapes.forEach((shape, index) => {
+          //-----------------------------
+          // PATH DRAW ANIMATION
+          //-----------------------------
+          if (shape.tagName === "path") {
+            try {
+              const length = shape.getTotalLength();
+
+              shape.style.fillOpacity = "0";
+
+              shape.style.strokeDasharray = length;
+
+              shape.style.strokeDashoffset = length;
+
+              shape.animate(
+                [
+                  {
+                    strokeDashoffset: length,
+                    fillOpacity: 0,
+                  },
+                  {
+                    strokeDashoffset: 0,
+                    fillOpacity: 1,
+                  },
+                ],
+                {
+                  duration: 1500,
+                  delay: index * 250,
+                  fill: "forwards",
+                  easing: "ease",
+                },
+              );
+            } catch (e) {}
+
+            return;
+          }
+
+          //-----------------------------
+          // OTHER SHAPES
+          //-----------------------------
+          shape.animate(
+            [
+              {
+                opacity: 0,
+                transform: "translateY(40px) scale(.4)",
+              },
+              {
+                opacity: 1,
+                transform: "translateY(0) scale(1)",
+              },
+            ],
+            {
+              duration: 700,
+              delay: index * 250,
+              fill: "forwards",
+              easing: "ease-out",
+            },
+          );
+        });
+      }
+    </script>
+  </body>
+</html>
